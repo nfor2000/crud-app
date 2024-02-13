@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+     <meta charset="UTF-8">
+     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+     <title>Dashboard</title>
+     <link rel="stylesheet" href="./assets/bootstrap-5.0.2-dist/css/bootstrap.min.css">
+     <link rel="stylesheet" href="./assets/font-awesome-4.7.0/css/font-awesome.min.css">
+
+     <style>
+          fieldset,
+          legend {
+               all: revert;
+          }
+     </style>
+</head>
+
+<body class="bg-white">
+     <header class="py-4">
+          <div class="container">
+               <h2>
+                    <span class="text-primary">C</span><span class="text-warning">R</span><span
+                         class="text-success">U</span><span class="text-danger">D</span><span class="text-secondary">
+                         App</span>
+               </h2>
+
+               <h3 class="h2 d-inline"><i class="fa fa-th-large"></i> Dash Board</h3>
+          </div>
+     </header>
+     <section class="py-5">
+          <div class="container">
+               <h4>Update user</h4>
+               <a href="./index.html" class="d-block mb-3">Go back</a>
+               <div style="width: 360px;">
+                    <form id="form">
+                         <input type="text" name="name" class="form-control mb-2" placeholder="Enter name">
+                         <input type="text" name="email" class="form-control mb-2" placeholder="Enter email">
+                         <input type="text" name="location" class="form-control mb-2" placeholder="Enter location">
+                         <input type="text" name="old_password" class="form-control mb-2"
+                              placeholder="Enter old password">
+                         <input type="text" name="new_password" class="form-control mb-2"
+                              placeholder="Enter new password">
+
+                         <button type="submit" class="btn btn-primary">Update</button>
+                    </form>
+               </div>
+          </div>
+     </section>
+     <script type="module">
+          import { showAlert } from "./assets/js/helperFunc.js"
+          let url = new URL(window.location.toString());
+          let param = url.searchParams.get('id');
+
+          const fetchUser = async () => {
+               try {
+                    const response = await fetch(`/user/get_user/${param}`, {
+                         method: 'get'
+                    });
+
+                    if (response.ok) {
+                         const data = await response.json();
+
+                         document.querySelector('input[name=name]').value = data.name
+                         document.querySelector('input[name=email]').value = data.email
+                         document.querySelector('input[name=location]').value = data.location
+
+                    } else {
+                         const data = await response.json();
+                         showAlert("alert alert-danger alert-dismissible fade show", data.msg)
+                    }
+
+               } catch (err) {
+                    console.log('Error: ' + err);
+
+               }
+          }
+
+          fetchUser();
+
+          const form = document.getElementById('form');
+
+          form.addEventListener('submit', async (e) => {
+               e.preventDefault();
+
+               const formData = {
+                    id: param,
+                    name: document.querySelector('input[name=name]').value,
+                    email: document.querySelector('input[name=email]').value,
+                    location: document.querySelector('input[name=location]').value,
+                    old_password: document.querySelector('input[name=old_password]').value,
+                    new_password: document.querySelector('input[name=new_password]').value
+               }
+
+               try {
+                    const response = await fetch('/user/update_user', {
+                         method: 'POST',
+                         headers: {
+                              'Content-Type': 'application/json'
+                         },
+                         body: JSON.stringify(formData),
+                    });
+
+                    if (response.ok) {
+                         const data = await response.json();
+                         showAlert("alert alert-success alert-dismissible fade show", data.msg);
+                         document.querySelector('input[name=name]').value = "";
+                         document.querySelector('input[name=email]').value = "";
+                         document.querySelector('input[name=location]').value = "";
+                         document.querySelector('input[name=old_password]').value = "";
+                         document.querySelector('input[name=new_password]').value = "";
+                    } else {
+                         const data = await response.json();
+                         showAlert("alert alert-danger alert-dismissible fade show", data.msg)
+                    }
+               } catch (err) {
+                    console.log('Error: ' + err);
+               }
+          })
+     </script>
+     <script src="./assets/bootstrap-5.0.2-dist/js/bootstrap.min.js"></script>
+</body>
+
+</html>
